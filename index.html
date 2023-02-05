@@ -1,7 +1,42 @@
 <!DOCTYPE html>
 <html>
-<body>
-<h1>Hello World</h1>
-<p>I'm hosted with GitHub Pages.</p>
-</body>
+  <head>
+    <style>
+      #canvas {
+        width: 500px;
+        height: 500px;
+        border: 1px solid black;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Hello World</h1>
+    <p>I'm hosted with GitHub Pages.</p>
+    
+    <canvas id="canvas" width="500" height="500"></canvas>
+    <script>
+      const canvas = document.getElementById('canvas');
+      const ctx = canvas.getContext('2d');
+      let scale = 500 / 32;
+
+      
+      ctx.scale(scale, scale);
+      
+      canvas.addEventListener('mousedown', (e) => {
+        ctx.beginPath();
+        ctx.moveTo(e.offsetX / scale, e.offsetY / scale);
+        canvas.addEventListener('mousemove', draw);
+      });
+      
+      canvas.addEventListener('mouseup', () => {
+        canvas.removeEventListener('mousemove', draw);
+      });
+      
+      function draw(e) {
+        ctx.lineTo(e.offsetX / scale, e.offsetY / scale);
+        ctx.stroke();
+      }
+
+    </script>
+  </body>
 </html>
