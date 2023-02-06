@@ -18,13 +18,20 @@
       <li>kala, waso, ala, toki, kasi, kili, jan, pona, suwi, tenpo </li>
     </ul>
     <canvas id="myCanvas" width="32" height="32"></canvas>
+    <button id="clear-button">Clear</button>
     <div id="prediction">Prediction:</div>
+    
     <script>
       const scale = 128/32;
       const canvas = document.getElementById("myCanvas");
       const ctx = canvas.getContext("2d");
+      const clearButton = document.getElementById('clear-button');
       let mouseDown = false;
 
+      clearButton.addEventListener('click', () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      });
+      
       canvas.addEventListener("mousedown", e => {
         ctx.strokeStyle = "red";
         ctx.beginPath();
