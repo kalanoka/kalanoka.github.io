@@ -118,7 +118,7 @@
 
       
       async function loadModel() {
-        const model = await tf.loadLayersModel('model.onnx');
+        const model = await tf.loadLayersModel('https://kalanoka.github.io/model.onnx');
         return model;
       }
       async function predict() {
