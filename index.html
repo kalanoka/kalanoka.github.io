@@ -15,16 +15,17 @@
     </style>
   </head>
   <body>
-    
+
     <h1>Hello World</h1>
-    <p>I'm hosted with GitHub Pages.</p>
+    <p>This is a test.</p>
     
     <canvas id="canvas" width="500" height="500"></canvas>
     <button id="draw-button">Draw</button>
     <button id="erase-button">Erase</button>
     <button id="clear-button">Clear</button>
     <button onclick="predict()">Predict</button>
-
+    <div id="prediction">Prediction:</div>
+    
     <script>
 
       const canvas = document.getElementById('canvas');
@@ -71,6 +72,7 @@
       }
 
       function preprocessCanvas() {
+
         const canvas = document.getElementById('canvas');
         let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         let pixels = imgData.data;
@@ -114,24 +116,29 @@
         // Display the prediction result
         const predictionElement = document.getElementById('prediction');
         predictionElement.innerHTML = `Prediction: ${maxIndex}`;
+
       }
 
-      
       async function loadModel() {
-        const model = await tf.loadLayersModel('https://kalanoka.github.io/model.onnx');
+        const model = await tf.loadLayersModel('model.onnx');
         return model;
       }
+      
       async function predict() {
+        const predictionElement = document.getElementById('prediction');
+        predictionElement.innerHTML = "Prediction: processing";
         const model = await loadModel();
+        predictionElement.innerHTML = "Prediction: model loaded";
         // Pre-process the canvas content to get the input tensor
         const input = preprocessCanvas();
+        predictionElement.innerHTML = "Prediction: pre-processing canvas";
         // Use the model to make a prediction
         const prediction = model.predict(input);
+        predictionElement.innerHTML = "Prediction: post-processing...";
         // Post-process the prediction to display the results on the page
         postprocessPrediction(prediction);
       }
-
+    
     </script>
   </body>
 </html>
-
