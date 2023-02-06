@@ -1,26 +1,55 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.7.0/dist/tf.min.js"></script>
+
     <style>
       #canvas {
         width: 500px;
         height: 500px;
         border: 1px solid black;
       }
+      button {
+        margin: 10px;
+      }
     </style>
   </head>
   <body>
+    
     <h1>Hello World</h1>
     <p>I'm hosted with GitHub Pages.</p>
     
     <canvas id="canvas" width="500" height="500"></canvas>
+    <button id="draw-button">Draw</button>
+    <button id="erase-button">Erase</button>
+    <button id="clear-button">Clear</button>
+    <button onclick="predict()">Predict</button>
+
     <script>
+
       const canvas = document.getElementById('canvas');
       const ctx = canvas.getContext('2d');
       let scale = 500 / 32;
 
-      
+      const drawButton = document.getElementById('draw-button');
+      const eraseButton = document.getElementById('erase-button');
+      const clearButton = document.getElementById('clear-button');
+
       ctx.scale(scale, scale);
+      let isDrawing = true;
+
+      drawButton.addEventListener('click', () => {
+        isDrawing = true;
+      });
+      
+      eraseButton.addEventListener('click', () => {
+        isDrawing = false;
+      });
+
+      clearButton.addEventListener('click', () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      });
+
       
       canvas.addEventListener('mousedown', (e) => {
         ctx.beginPath();
@@ -33,10 +62,76 @@
       });
       
       function draw(e) {
-        ctx.lineTo(e.offsetX / scale, e.offsetY / scale);
-        ctx.stroke();
+        if (isDrawing) {
+          ctx.lineTo(e.offsetX / scale, e.offsetY / scale);
+          ctx.stroke();
+        } else {
+          ctx.clearRect(e.offsetX / scale - 1, e.offsetY / scale - 1, 2, 2);
+        }
+      }
+
+      function preprocessCanvas() {
+        const canvas = document.getElementById('canvas');
+        let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        let pixels = imgData.data;
+      
+        // Resize the image to 32x32
+        let resized = new ImageData(32, 32);
+        let resizedPixels = resized.data;
+      
+        // Loop through the image pixels
+        for (let i = 0; i < 32 * 32; ++i) {
+          let row = Math.floor(i / 32);
+          let col = i % 32;
+          let sourceIndex = (row * 4 * canvas.width + col * 4) * canvas.width / 32;
+          let destIndex = i * 4;
+          resizedPixels[destIndex + 0] = pixels[sourceIndex + 0];
+          resizedPixels[destIndex + 1] = pixels[sourceIndex + 1];
+          resizedPixels[destIndex + 2] = pixels[sourceIndex + 2];
+          resizedPixels[destIndex + 3] = pixels[sourceIndex + 3];
+        }
+      
+        // Normalize the image data
+        for (let i = 0; i < 32 * 32; ++i) {
+          let destIndex = i * 4;
+          resizedPixels[destIndex + 0] = resizedPixels[destIndex + 0] / 255.0;
+          resizedPixels[destIndex + 1] = resizedPixels[destIndex + 1] / 255.0;
+          resizedPixels[destIndex + 2] = resizedPixels[destIndex + 2] / 255.0;
+        }
+      
+        return resizedPixels;
+      }
+
+      async function postprocessPrediction(output) {
+        // Get the index of the highest prediction value
+        let maxIndex = 0;
+        for (let i = 0; i < output.length; ++i) {
+          if (output[i] > output[maxIndex]) {
+            maxIndex = i;
+          }
+        }
+      
+        // Display the prediction result
+        const predictionElement = document.getElementById('prediction');
+        predictionElement.innerHTML = `Prediction: ${maxIndex}`;
+      }
+
+      
+      async function loadModel() {
+        const model = await tf.loadLayersModel('model.onnx');
+        return model;
+      }
+      async function predict() {
+        const model = await loadModel();
+        // Pre-process the canvas content to get the input tensor
+        const input = preprocessCanvas();
+        // Use the model to make a prediction
+        const prediction = model.predict(input);
+        // Post-process the prediction to display the results on the page
+        postprocessPrediction(prediction);
       }
 
     </script>
   </body>
 </html>
+
