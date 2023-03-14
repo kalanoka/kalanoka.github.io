@@ -72,7 +72,7 @@
         const sess = new onnx.InferenceSession();
 
         try {
-          await sess.loadModel("smoll24.github.io/model2.onnx");
+          await sess.loadModel("https://smoll24.github.io/model2.onnx");
           console.log('model loaded successfully');
         } catch (error) {
           console.error("Error loading model:", error);
