@@ -19,6 +19,7 @@
       <li>kala, waso, ala, toki, kasi, kili, jan, pona, suwi, tenpo </li>
     </ul>
     <canvas id="myCanvas" width="32" height="32"></canvas>
+    <canvas id="myCanvas2" width="0" height="0"></canvas>
     <button id="clear-button">Clear</button>
     <div id="prediction">Prediction:</div>
     
@@ -28,6 +29,16 @@
       const ctx = canvas.getContext("2d");
       const clearButton = document.getElementById('clear-button');
       let mouseDown = false;
+
+      const canvas2 = document.getElementById("myCanvas2");
+      const ctx2 = canvas2.getContext('2d');
+      const img = new Image();
+      img.src = '000.png';
+      img.onload = function() {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx2.drawImage(img, 0, 0);
+      }
       
       clearButton.addEventListener('click', () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -61,7 +72,7 @@
         const sess = new onnx.InferenceSession();
 
         try {
-          await sess.loadModel("https://kalanoka.github.io/model2.onnx");
+          await sess.loadModel("smoll24.github.io/model2.onnx");
           console.log('model loaded successfully');
         } catch (error) {
           console.error("Error loading model:", error);
